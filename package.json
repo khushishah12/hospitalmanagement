@@ -1,0 +1,22 @@
+{
+  "name": "hospital-management-system",
+  "version": "1.0.0",
+  "description": "Beginner-friendly Hospital Management System for College Practical and Viva",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "hospital-management",
+    "mysql",
+    "vue3",
+    "bootstrap",
+    "html5"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.9.8"
+  }
+}

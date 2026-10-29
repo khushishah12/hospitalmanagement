@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityCare - Hospital Management System</title>
+
+  <!-- ================================================================ -->
+  <!-- REFERENCE LINKS: HTML5, CSS, AND FRONTEND FRAMEWORKS              -->
+  <!-- ================================================================ -->
+
+  <!-- HTML5 Semantic Elements: header, nav, main, section, article, footer, time -->
+  <!-- https://developer.mozilla.org/en-US/docs/Glossary/Semantics -->
+
+  <!-- Bootstrap 5 CSS CDN: Grid, responsive layouts, forms, tables, buttons, alerts -->
+  <!-- https://getbootstrap.com/docs/5.3/getting-started/introduction/ -->
+  <!-- Bootstrap Grid System: https://getbootstrap.com/docs/5.3/layout/grid/ -->
+  <!-- Bootstrap Forms: https://getbootstrap.com/docs/5.3/forms/overview/ -->
+  <!-- Bootstrap Tables: https://getbootstrap.com/docs/5.3/content/tables/ -->
+  <!-- Bootstrap Alerts: https://getbootstrap.com/docs/5.3/components/alerts/ -->
+  <!-- Bootstrap Navbar: https://getbootstrap.com/docs/5.3/components/navs-tabs/ -->
+
+  <!-- 1. Bootstrap 5 CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- Tailwind CSS CDN: Utility classes for styling -->
+  <!-- https://tailwindcss.com/docs/utility-first -->
+  <!-- Tailwind Colors: https://tailwindcss.com/docs/colors -->
+  <!-- Tailwind Spacing: https://tailwindcss.com/docs/padding -->
+
+  <!-- 2. Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Vue.js 3: Options API, directives, event handling, and reactive data -->
+  <!-- https://vuejs.org/guide/introduction.html -->
+  <!-- Vue Options API: https://vuejs.org/api/options-state.html -->
+  <!-- Vue Directives: https://vuejs.org/guide/essentials/template-syntax.html -->
+  <!-- Vue Event Handling (@click, @change, @submit): https://vuejs.org/guide/essentials/event-handling.html -->
+  <!-- Vue Form Input Bindings (v-model): https://vuejs.org/guide/essentials/forms.html -->
+  <!-- Vue Conditional Rendering (v-if, v-show): https://vuejs.org/guide/essentials/conditional.html -->
+  <!-- Vue List Rendering (v-for, :key): https://vuejs.org/guide/essentials/list.html -->
+  <!-- Vue Class Binding (:class): https://vuejs.org/guide/essentials/class-and-style.html -->
+
+  <!-- 3. Vue.js 3 CDN (Options API) -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- 4. Custom Application Stylesheet -->
+  <!-- Custom CSS reference: https://developer.mozilla.org/en-US/docs/Web/CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Vue Application Root: Vue mounts and manages this element -->
+  <!-- https://vuejs.org/guide/essentials/application.html -->
+  <div id="app">
+
+    <!-- ================================================================== -->
+    <!-- SEMANTIC HTML5: Header & Top Bar                                   -->
+    <!-- ================================================================== -->
+    <!-- Header Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header -->
+    <!-- Bootstrap Flex Utilities: https://getbootstrap.com/docs/5.3/utilities/flex/ -->
+    <!-- Bootstrap Background Colors: https://getbootstrap.com/docs/5.3/utilities/background/ -->
+    <header class="bg-primary text-white py-3 shadow-sm">
+      <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-3 fw-bold tracking-wide">🏥 CityCare Hospital</span>
+          <span class="badge bg-light text-primary d-none d-md-inline-block">Management Portal</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <!-- HTML5 Geolocation API -->
+          <!-- https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API -->
+          <!-- Vue Click Event: https://vuejs.org/guide/essentials/event-handling.html -->
+          <button 
+            type="button" 
+            class="btn btn-outline-light btn-sm d-flex align-items-center gap-1"
+            @click="getMyLocation"
+            title="Detect location using HTML5 Geolocation API"
+          >
+            <span>📍</span>
+            <span>Get My Location</span>
+          </button>
+
+          <!-- Theme Toggle: Vue event handling and conditional rendering -->
+          <!-- LocalStorage: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage -->
+          <button 
+            type="button" 
+            class="btn btn-outline-light btn-sm"
+            @click="toggleTheme"
+            :title="'Switch to ' + (theme === 'light' ? 'Dark' : 'Light') + ' theme'"
+          >
+            <span v-if="theme === 'light'">🌙 Dark Mode</span>
+            <span v-else>☀️ Light Mode</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================================================================== -->
+    <!-- SEMANTIC HTML5: Navigation Bar                                     -->
+    <!-- ================================================================== -->
+    <!-- Navigation Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav -->
+    <!-- Bootstrap Nav Tabs: https://getbootstrap.com/docs/5.3/components/navs-tabs/ -->
+    <!-- Vue Class Binding: https://vuejs.org/guide/essentials/class-and-style.html -->
+    <nav class="bg-white border-bottom shadow-xs sticky-top">
+      <div class="container">
+        <ul class="nav nav-tabs border-0 pt-2 flex-nowrap overflow-x-auto">
+          <li class="nav-item">
+            <button 
+              class="nav-link fw-semibold px-4" 
+              :class="{ active: activeTab === 'dashboard' }"
+              @click="activeTab = 'dashboard'"
+            >
+              📊 Dashboard
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link fw-semibold px-4" 
+              :class="{ active: activeTab === 'patients' }"
+              @click="activeTab = 'patients'"
+            >
+              👥 Patients ({{ totalPatients }})
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link fw-semibold px-4" 
+              :class="{ active: activeTab === 'doctors' }"
+              @click="activeTab = 'doctors'"
+            >
+              👨‍⚕️ Doctors ({{ totalDoctors }})
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link fw-semibold px-4" 
+              :class="{ active: activeTab === 'appointments' }"
+              @click="activeTab = 'appointments'"
+            >
+              📅 Appointments ({{ totalAppointments }})
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link fw-semibold px-4" 
+              :class="{ active: activeTab === 'beds' }"
+              @click="activeTab = 'beds'"
+            >
+              🛏️ Beds & Wards ({{ availableBedsCount }} Available)
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ================================================================== -->
+    <!-- SEMANTIC HTML5: Main Content                                       -->
+    <!-- ================================================================== -->
+    <!-- Main Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main -->
+    <!-- Vue Conditional Rendering: https://vuejs.org/guide/essentials/conditional.html -->
+    <main class="container py-4">
+
+      <!-- Bootstrap Alert: https://getbootstrap.com/docs/5.3/components/alerts/ -->
+      <!-- Vue Dynamic Class Binding: https://vuejs.org/guide/essentials/class-and-style.html -->
+      <div 
+        v-if="alert.show" 
+        :class="['alert', 'alert-' + alert.type, 'alert-dismissible', 'fade', 'show', 'shadow-sm']" 
+        role="alert"
+      >
+        <span>{{ alert.message }}</span>
+        <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
+      </div>
+
+      <!-- HTML5 Geolocation API Display -->
+      <!-- https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API -->
+      <section 
+        v-if="userLocation || locationStatus || locationError" 
+        class="custom-card p-3 mb-4 bg-blue-50 border-blue-200"
+      >
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h6 class="fw-bold text-blue-900 mb-1">📍 HTML5 Geolocation API Result</h6>
+            <p class="small text-muted mb-2">
+              Demonstrates <code>navigator.geolocation.getCurrentPosition()</code>. Coordinates are processed locally and NOT saved or sent to any server.
+            </p>
+            <div v-if="locationStatus" class="text-primary small fw-semibold">
+              {{ locationStatus }}
+            </div>
+            <div v-if="userLocation" class="text-dark small">
+              <strong>Latitude:</strong> {{ userLocation.latitude }}° | 
+              <strong>Longitude:</strong> {{ userLocation.longitude }}° | 
+              <strong>Accuracy:</strong> ±{{ userLocation.accuracy }} meters | 
+              <strong>Time:</strong> {{ userLocation.timestamp }}
+            </div>
+            <div v-if="locationError" class="text-danger small fw-semibold">
+              ⚠️ {{ locationError }}
+            </div>
+            <div class="small text-muted mt-1 fst-italic">
+              * Note: Browser Geolocation requires explicit user permission and a secure context (HTTPS or localhost).
+            </div>
+          </div>
+          <button type="button" class="btn-close" @click="clearLocation" aria-label="Close location box"></button>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SECTION A: DASHBOARD                                             -->
+      <!-- ================================================================ -->
+      <!-- Vue v-show: https://vuejs.org/guide/essentials/conditional.html -->
+      <!-- Bootstrap Responsive Grid: https://getbootstrap.com/docs/5.3/layout/grid/ -->
+      <section v-show="activeTab === 'dashboard'">
+        <div class="row g-3 mb-4">
+
+          <!-- Stat Card 1: Total Patients -->
+          <!-- Vue Interpolation: https://vuejs.org/guide/essentials/template-syntax.html -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <article class="stat-card stat-patients">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">Total Patients</div>
+                  <div class="fs-2 fw-bold text-dark">{{ totalPatients }}</div>
+                </div>
+                <div class="fs-1 text-primary opacity-50">👥</div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Stat Card 2: Total Doctors -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <article class="stat-card stat-doctors">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">Active Doctors</div>
+                  <div class="fs-2 fw-bold text-dark">{{ totalDoctors }}</div>
+                </div>
+                <div class="fs-1 text-success opacity-50">👨‍⚕️</div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Stat Card 3: Appointments -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <article class="stat-card stat-appointments">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">Appointments</div>
+                  <div class="fs-2 fw-bold text-dark">{{ totalAppointments }}</div>
+                </div>
+                <div class="fs-1 text-warning opacity-50">📅</div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Stat Card 4: Available Beds -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <article class="stat-card stat-beds">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">Available Beds</div>
+                  <div class="fs-2 fw-bold text-dark">{{ availableBedsCount }} / {{ beds.length }}</div>
+                </div>
+                <div class="fs-1 text-info opacity-50">🛏️</div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Recent Patients: Bootstrap Table -->
+        <!-- https://getbootstrap.com/docs/5.3/content/tables/ -->
+        <!-- Vue List Rendering: https://vuejs.org/guide/essentials/list.html -->
+        <!-- Semantic Time Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time -->
+        <div class="custom-card p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">📋 Recently Admitted Patients</h5>
+            <button class="btn btn-sm btn-outline-primary" @click="activeTab = 'patients'">
+              View All Patients &rarr;
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Patient Name</th>
+                  <th>Department</th>
+                  <th>Admission Date</th>
+                  <th>Assigned Doctor</th>
+                  <th>Batch</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="recentPatients.length === 0">
+                  <td colspan="7" class="text-center text-muted py-3">No patients registered yet.</td>
+                </tr>
+                <tr v-for="patient in recentPatients" :key="patient.id">
+                  <td><strong>#{{ patient.id }}</strong></td>
+                  <td>{{ patient.name }}</td>
+                  <td>{{ patient.department }}</td>
+                  <td>
+                    <!-- Semantic HTML5 <time> element -->
+                    <time :datetime="patient.admission_date">{{ formatDate(patient.admission_date) }}</time>
+                  </td>
+                  <td>{{ patient.assigned_doctor }}</td>
+                  <td><span class="badge bg-light text-dark border">{{ patient.batch || 'Morning' }}</span></td>
+                  <td>
+                    <!-- Dynamic class binding -->
+                    <span :class="getStatusBadgeClass(patient.status)">
+                      {{ patient.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- REST API and Database Integration Concept -->
+        <!-- Fetch API: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch -->
+        <!-- HTTP Methods: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods -->
+        <!-- Express.js Routing: https://expressjs.com/en/guide/routing.html -->
+        <!-- MySQL Documentation: https://dev.mysql.com/doc/ -->
+        <div class="p-3 bg-white rounded border border-slate-200 text-muted small">
+          💡 <strong>College Practical Tip:</strong> Data is synchronized directly with <strong>MySQL database</strong> via Node.js Express REST API endpoints. Changes made in the tabs below are persisted across reloads.
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SECTION B: PATIENT MANAGEMENT                                    -->
+      <!-- ================================================================ -->
+      <!-- HTML Forms: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form -->
+      <!-- HTML Form Validation: https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation -->
+      <!-- Vue Forms and v-model: https://vuejs.org/guide/essentials/forms.html -->
+      <section v-show="activeTab === 'patients'">
+
+        <!-- Patient Registration & Edit Form -->
+        <div class="custom-card p-4 mb-4">
+          <h5 class="fw-bold mb-3 text-primary">
+            {{ isEditingPatient ? '✏️ Edit Patient Record #' + patientForm.id : '📝 Register New Patient' }}
+          </h5>
+
+          <!-- Vue submit event modifier .prevent -->
+          <!-- https://vuejs.org/guide/essentials/event-handling.html -->
+          <form @submit.prevent="savePatient">
+            <div class="row g-3">
+
+              <!-- Patient Name: HTML text input and Vue v-model.trim -->
+              <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text -->
+              <!-- Vue Form Input Modifiers: https://vuejs.org/guide/essentials/forms.html -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Patient Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model.trim="patientForm.name" 
+                  required 
+                  minlength="3" 
+                  maxlength="50"
+                  placeholder="e.g. John Doe"
+                >
+              </div>
+
+              <!-- Number Input: min, max and required validation -->
+              <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number -->
+              <div class="col-md-2">
+                <label class="form-label small fw-semibold">Age *</label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  v-model.number="patientForm.age" 
+                  required 
+                  min="1" 
+                  max="120"
+                  placeholder="e.g. 35"
+                >
+              </div>
+
+              <!-- HTML Select Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select -->
+              <div class="col-md-2">
+                <label class="form-label small fw-semibold">Gender *</label>
+                <select class="form-select" v-model="patientForm.gender" required>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <!-- Telephone Input and HTML Pattern Validation -->
+              <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/tel -->
+              <!-- HTML Pattern Attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Contact Number (10 digits) *</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  v-model.trim="patientForm.contact" 
+                  required 
+                  pattern="[0-9]{10}"
+                  placeholder="e.g. 9876543210"
+                  title="Please enter a valid 10-digit phone number"
+                >
+              </div>
+
+              <!-- Address Input -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Address *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model.trim="patientForm.address" 
+                  required
+                  placeholder="e.g. 12 Baker Street"
+                >
+              </div>
+
+              <!-- Department Dropdown -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Department *</label>
+                <select class="form-select" v-model="patientForm.department" required>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Neurology">Neurology</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="General Medicine">General Medicine</option>
+                </select>
+              </div>
+
+              <!-- HTML Date Input: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Admission Date *</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  v-model="patientForm.admission_date" 
+                  required
+                >
+              </div>
+
+              <!-- Vue v-for for Doctor Options -->
+              <!-- https://vuejs.org/guide/essentials/list.html -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Assigned Doctor *</label>
+                <select class="form-select" v-model="patientForm.assigned_doctor" required>
+                  <option v-for="doc in doctors" :key="doc.id" :value="doc.name">
+                    {{ doc.name }} ({{ doc.specialization }})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Status Dropdown -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Status *</label>
+                <select class="form-select" v-model="patientForm.status" required>
+                  <option value="Admitted">Admitted</option>
+                  <option value="Waiting">Waiting</option>
+                  <option value="Discharged">Discharged</option>
+                </select>
+              </div>
+
+              <!-- Scheduling Batch Dropdown -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Scheduling Batch</label>
+                <select class="form-select" v-model="patientForm.batch">
+                  <option value="Morning Batch">Morning Batch</option>
+                  <option value="Afternoon Batch">Afternoon Batch</option>
+                  <option value="Evening Batch">Evening Batch</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Form Action Buttons -->
+            <!-- Bootstrap Buttons: https://getbootstrap.com/docs/5.3/components/buttons/ -->
+            <div class="mt-4 d-flex gap-2">
+              <button type="submit" class="btn btn-primary px-4">
+                {{ isEditingPatient ? '💾 Save Changes' : '➕ Register Patient' }}
+              </button>
+              <button 
+                v-if="isEditingPatient" 
+                type="button" 
+                class="btn btn-secondary" 
+                @click="cancelEditPatient"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Search, Filter & Batch Allocation Controls -->
+        <!-- Vue v-model: https://vuejs.org/guide/essentials/forms.html -->
+        <div class="custom-card p-3 mb-4">
+          <div class="row g-2 align-items-center">
+
+            <!-- Search Input -->
+            <div class="col-12 col-md-4">
+              <input 
+                type="text" 
+                class="form-control form-control-sm" 
+                placeholder="🔍 Search patient by Name or ID..." 
+                v-model="patientSearch"
+              >
+            </div>
+
+            <!-- Department Filter -->
+            <div class="col-6 col-md-3">
+              <select class="form-select form-select-sm" v-model="patientFilterDept" @change="savePreferences">
+                <option value="">All Departments</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="General Medicine">General Medicine</option>
+              </select>
+            </div>
+
+            <!-- Batch Filter -->
+            <div class="col-6 col-md-3">
+              <select class="form-select form-select-sm" v-model="patientFilterBatch">
+                <option value="">All Batches</option>
+                <option value="Morning Batch">Morning Batch</option>
+                <option value="Afternoon Batch">Afternoon Batch</option>
+                <option value="Evening Batch">Evening Batch</option>
+              </select>
+            </div>
+
+            <!-- JavaScript String toUpperCase() Method -->
+            <!-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase -->
+            <div class="col-12 col-md-2 d-flex justify-content-end">
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary btn-sm w-100" 
+                @click="showUppercase = !showUppercase"
+                title="Demonstrates Vue toUpperCase() method"
+              >
+                {{ showUppercase ? 'Aa Lower' : 'AA UPPER' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patients List Table -->
+        <!-- Bootstrap Responsive Tables: https://getbootstrap.com/docs/5.3/content/tables/ -->
+        <!-- Vue List Rendering: https://vuejs.org/guide/essentials/list.html -->
+        <div class="custom-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Registered Patients ({{ filteredPatients.length }})</h5>
+            <span class="text-muted small">Updated dynamically with Vue 3 reactive lists</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Patient Name</th>
+                  <th>Age/Gender</th>
+                  <th>Contact</th>
+                  <th>Department</th>
+                  <th>Admission Date</th>
+                  <th>Assigned Doctor</th>
+                  <th>Batch Allocation</th>
+                  <th>Status</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="filteredPatients.length === 0">
+                  <td colspan="10" class="text-center text-muted py-4">
+                    No matching patient records found.
+                  </td>
+                </tr>
+                <tr v-for="patient in filteredPatients" :key="patient.id">
+                  <td><strong>#{{ patient.id }}</strong></td>
+                  <td>
+                    <!-- String toUpperCase(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toUpperCase -->
+                    <strong>{{ showUppercase ? toUpperCase(patient.name) : patient.name }}</strong>
+                    <div class="small text-muted">{{ patient.address }}</div>
+                  </td>
+                  <td>{{ patient.age }} yrs / {{ patient.gender }}</td>
+                  <td>{{ patient.contact }}</td>
+                  <td>{{ patient.department }}</td>
+                  <td>
+                    <!-- Semantic HTML5 <time> element -->
+                    <time :datetime="patient.admission_date">{{ formatDate(patient.admission_date) }}</time>
+                  </td>
+                  <td>{{ patient.assigned_doctor }}</td>
+                  <td>
+                    <!-- Batch Assignment: Vue change event -->
+                    <!-- https://vuejs.org/guide/essentials/event-handling.html -->
+                    <select 
+                      class="form-select form-select-sm" 
+                      :value="patient.batch || 'Morning Batch'"
+                      @change="assignBatch(patient, $event.target.value)"
+                    >
+                      <option value="Morning Batch">Morning Batch</option>
+                      <option value="Afternoon Batch">Afternoon Batch</option>
+                      <option value="Evening Batch">Evening Batch</option>
+                    </select>
+                  </td>
+                  <td>
+                    <!-- Dynamic class badge -->
+                    <span :class="getStatusBadgeClass(patient.status)">
+                      {{ patient.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex justify-content-center gap-1">
+                      <button 
+                        class="btn btn-outline-primary btn-sm py-0 px-2" 
+                        @click="editPatient(patient)"
+                        title="Edit record"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger btn-sm py-0 px-2" 
+                        @click="deletePatient(patient.id)"
+                        title="Delete record"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SECTION C: DOCTOR MANAGEMENT                                     -->
+      <!-- ================================================================ -->
+      <!-- Semantic Article Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article -->
+      <!-- Vue List Rendering: https://vuejs.org/guide/essentials/list.html -->
+      <!-- Bootstrap Cards and Layout Utilities: https://getbootstrap.com/docs/5.3/components/card/ -->
+      <section v-show="activeTab === 'doctors'">
+        <div class="custom-card p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold mb-1">👨‍⚕️ Medical Specialists & Staff</h5>
+              <p class="text-muted small mb-0">List of active doctors available for consultation and appointment scheduling.</p>
+            </div>
+            <span class="badge bg-primary fs-6">{{ doctors.length }} Doctors On Call</span>
+          </div>
+
+          <div class="row g-3">
+            <!-- Using Semantic HTML5 <article> for individual doctor cards -->
+            <div class="col-12 col-md-6 col-lg-4" v-for="doc in doctors" :key="doc.id">
+              <article class="custom-card p-3 h-100 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="fw-bold text-dark mb-0">{{ doc.name }}</h6>
+                  <span class="badge bg-light text-success border border-success small">ID: #{{ doc.id }}</span>
+                </div>
+                <div class="text-primary fw-semibold small mb-1">{{ doc.specialization }}</div>
+                <div class="text-muted small mb-2">
+                  <strong>Department:</strong> {{ doc.department }}
+                </div>
+                <div class="bg-light p-2 rounded small text-dark d-flex align-items-center gap-1">
+                  <span>⏰ Slot:</span>
+                  <strong>{{ doc.time_slot }}</strong>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SECTION D: APPOINTMENT MANAGEMENT                                -->
+      <!-- ================================================================ -->
+      <!-- HTML Forms: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form -->
+      <!-- Vue Form Binding: https://vuejs.org/guide/essentials/forms.html -->
+      <section v-show="activeTab === 'appointments'">
+
+        <!-- Book Appointment Form -->
+        <div class="custom-card p-4 mb-4">
+          <h5 class="fw-bold mb-3 text-primary">📅 Book New Appointment</h5>
+          <form @submit.prevent="saveAppointment">
+            <div class="row g-3">
+
+              <!-- Patient Name -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Patient Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model.trim="appointmentForm.patient_name" 
+                  required 
+                  placeholder="e.g. Alice Johnson"
+                >
+              </div>
+
+              <!-- Doctor Selection and Change Event -->
+              <!-- Vue Event Handling: https://vuejs.org/guide/essentials/event-handling.html -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Select Doctor *</label>
+                <select 
+                  class="form-select" 
+                  v-model="appointmentForm.doctor_name" 
+                  @change="onDoctorChange" 
+                  required
+                >
+                  <option v-for="doc in doctors" :key="doc.id" :value="doc.name">
+                    {{ doc.name }} ({{ doc.specialization }})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Read-only Input: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/readonly -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Department *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model="appointmentForm.department" 
+                  required 
+                  readonly
+                >
+              </div>
+
+              <!-- HTML Date Input -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Appointment Date *</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  v-model="appointmentForm.appointment_date" 
+                  required
+                >
+              </div>
+
+              <!-- Appointment Time Slot -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Time Slot *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model.trim="appointmentForm.appointment_time" 
+                  required 
+                  placeholder="e.g. 10:30 AM"
+                >
+              </div>
+
+              <!-- Appointment Status -->
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Status *</label>
+                <select class="form-select" v-model="appointmentForm.status" required>
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary px-4">
+                📅 Confirm Appointment
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Appointment Filtering Controls -->
+        <!-- Vue Conditional Class Binding: https://vuejs.org/guide/essentials/class-and-style.html -->
+        <div class="custom-card p-3 mb-4">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-6">
+              <label class="small text-muted fw-semibold me-2">Filter by Status:</label>
+              <div class="btn-group btn-group-sm" role="group">
+                <button 
+                  type="button" 
+                  class="btn" 
+                  :class="appointmentFilterStatus === '' ? 'btn-primary' : 'btn-outline-secondary'"
+                  @click="appointmentFilterStatus = ''"
+                >
+                  All
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  :class="appointmentFilterStatus === 'Pending' ? 'btn-warning' : 'btn-outline-secondary'"
+                  @click="appointmentFilterStatus = 'Pending'"
+                >
+                  Pending
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  :class="appointmentFilterStatus === 'Confirmed' ? 'btn-success' : 'btn-outline-secondary'"
+                  @click="appointmentFilterStatus = 'Confirmed'"
+                >
+                  Confirmed
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  :class="appointmentFilterStatus === 'Cancelled' ? 'btn-danger' : 'btn-outline-secondary'"
+                  @click="appointmentFilterStatus = 'Cancelled'"
+                >
+                  Cancelled
+                </button>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6 d-flex justify-content-md-end align-items-center gap-2">
+              <label class="small text-muted fw-semibold">Filter by Date:</label>
+              <input 
+                type="date" 
+                class="form-control form-control-sm w-auto" 
+                v-model="appointmentFilterDate"
+              >
+              <button 
+                v-if="appointmentFilterDate" 
+                type="button" 
+                class="btn btn-sm btn-outline-secondary" 
+                @click="appointmentFilterDate = ''"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointments Table -->
+        <!-- Bootstrap Tables: https://getbootstrap.com/docs/5.3/content/tables/ -->
+        <div class="custom-card p-4">
+          <h5 class="fw-bold mb-3">Appointments List ({{ filteredAppointments.length }})</h5>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Patient Name</th>
+                  <th>Doctor Name</th>
+                  <th>Department</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="filteredAppointments.length === 0">
+                  <td colspan="7" class="text-center text-muted py-4">No appointments found matching filter criteria.</td>
+                </tr>
+                <tr v-for="apt in filteredAppointments" :key="apt.id">
+                  <td><strong>#{{ apt.id }}</strong></td>
+                  <td><strong>{{ apt.patient_name }}</strong></td>
+                  <td>{{ apt.doctor_name }}</td>
+                  <td>{{ apt.department }}</td>
+                  <td>
+                    <!-- Semantic HTML5 <time> element -->
+                    <time :datetime="apt.appointment_date">{{ formatDate(apt.appointment_date) }}</time>
+                  </td>
+                  <td>{{ apt.appointment_time }}</td>
+                  <td>
+                    <!-- Dynamic badge class based on appointment status -->
+                    <span :class="getStatusBadgeClass(apt.status)">
+                      {{ apt.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SECTION E: BED & WARD MANAGEMENT (With HTML5 Drag & Drop)        -->
+      <!-- ================================================================ -->
+      <!-- HTML Drag and Drop API: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API -->
+      <!-- Drag Event: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/drag_event -->
+      <!-- Drop Event: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/drop_event -->
+      <section v-show="activeTab === 'beds'">
+
+        <!-- Feature Instructions Card -->
+        <!-- Bootstrap Alert: https://getbootstrap.com/docs/5.3/components/alerts/ -->
+        <div class="alert alert-info border-info mb-4">
+          <h6 class="fw-bold mb-1">🛏️ Interactive HTML5 Drag-and-Drop Bed Allocation</h6>
+          <p class="small mb-0">
+            <strong>How it works:</strong> Drag an admitted patient card from the <strong>left column</strong> and drop it onto any green <strong>"Available"</strong> bed box on the right. The system verifies availability both on the client and in the MySQL database.
+          </p>
+        </div>
+
+        <div class="row g-4">
+
+          <!-- Left Column: Draggable Admitted Patients -->
+          <div class="col-12 col-lg-4">
+            <div class="custom-card p-3">
+              <h6 class="fw-bold text-primary mb-3">
+                👥 Admitted Patients ({{ admittedPatients.length }})
+              </h6>
+              <p class="small text-muted mb-2">Drag card to allocate into a hospital bed:</p>
+
+              <div v-if="admittedPatients.length === 0" class="text-center text-muted py-4 small">
+                No admitted patients currently waiting for beds.
+              </div>
+
+              <!-- HTML5 draggable attribute and dragstart event -->
+              <!-- https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API -->
+              <div 
+                v-for="patient in admittedPatients" 
+                :key="patient.id"
+                draggable="true"
+                @dragstart="handleDragStart($event, patient)"
+                class="patient-drag-item custom-card p-2 mb-2 bg-light border"
+              >
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>{{ patient.name }}</strong>
+                  <span class="badge bg-secondary">#{{ patient.id }}</span>
+                </div>
+                <div class="small text-muted">
+                  {{ patient.department }} | {{ patient.gender }}, {{ patient.age }} yrs
+                </div>
+                <div class="small text-primary mt-1">
+                  ✋ Drag this card &rarr;
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Hospital Beds (Drop Targets) -->
+          <div class="col-12 col-lg-8">
+            <div class="custom-card p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Hospital Beds & Ward Status</h6>
+                <div class="small">
+                  <span class="badge bg-success me-1">Available: {{ availableBedsCount }}</span>
+                  <span class="badge bg-danger">Occupied: {{ occupiedBedsCount }}</span>
+                </div>
+              </div>
+
+              <!-- Bed Drop Targets Grid -->
+              <div class="row g-3">
+                <div 
+                  class="col-12 col-sm-6" 
+                  v-for="bed in beds" 
+                  :key="bed.id"
+                >
+                  <!-- HTML5 dragover and drop handlers -->
+                  <!-- https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragover_event -->
+                  <!-- https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/drop_event -->
+                  <div 
+                    :class="['bed-box', bed.status === 'Available' ? 'bed-available' : 'bed-occupied']"
+                    @dragover="handleDragOver($event)"
+                    @drop="handleDrop($event, bed)"
+                  >
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="fw-bold mb-0">{{ bed.bed_number }}</h6>
+                        <span class="small text-muted">{{ bed.ward_name }} ({{ bed.bed_type }})</span>
+                      </div>
+                      <span :class="getStatusBadgeClass(bed.status)">
+                        {{ bed.status }}
+                      </span>
+                    </div>
+
+                    <!-- Available Bed Status -->
+                    <div v-if="bed.status === 'Available'" class="text-center py-2 text-muted small">
+                      📥 Drop patient here to assign
+                    </div>
+
+                    <!-- Occupied Bed Status -->
+                    <div v-else class="mt-2 pt-2 border-top">
+                      <div class="small">
+                        <strong>Patient:</strong> {{ bed.patient_name || 'Patient #' + bed.patient_id }}
+                      </div>
+                      <div class="mt-2 d-flex justify-content-end">
+                        <button 
+                          type="button" 
+                          class="btn btn-outline-danger btn-sm py-0 px-2"
+                          @click="releaseBed(bed)"
+                        >
+                          Release Bed
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================================================================== -->
+    <!-- SEMANTIC HTML5: Footer                                             -->
+    <!-- ================================================================== -->
+    <!-- Footer Element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer -->
+    <footer class="bg-light border-top py-3 mt-auto text-center text-muted small">
+      <div class="container">
+        <div>CityCare Hospital Management System &bull; College Practical &amp; Viva Project</div>
+        <div class="mt-1">Built with HTML5, CSS, Bootstrap 5 CDN, Tailwind CSS CDN, Vue.js 3, Node.js, Express &amp; MySQL</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- VUE APPLICATION LOGIC                                            -->
+  <!-- ================================================================ -->
+  <!-- JavaScript: https://developer.mozilla.org/en-US/docs/Web/JavaScript -->
+  <!-- Vue 3 Application: https://vuejs.org/guide/essentials/application.html -->
+  <!-- The app.js file contains Vue data, methods, API requests and event logic. -->
+  <script src="app.js"></script>
+</body>
+</html>
